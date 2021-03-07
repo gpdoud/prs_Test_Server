@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Prs_Test_Server": {
+      "commandName": "Project",
+      "commandLineArgs": "test-all"
+    }
+  }
+}

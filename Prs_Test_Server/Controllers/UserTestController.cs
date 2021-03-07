@@ -13,33 +13,24 @@ namespace Prs_Test_Server.Controllers {
     public class UserTestController {
 
         private UrlFormatter urlfmt = null;
-        private HttpClient http = null;
+        private HttpClient http = new HttpClient();
         private List<User> users = new List<User>();
+        //private Serializer<User> serUser = new Serializer<User>();
+        AsyncHttpClient<User> ahttp = new AsyncHttpClient<User>();
 
         public async Task TestUserList() {
             var url = urlfmt.Url;
-            var httpResp = await http.GetAsync(url);
-            var resp = await httpResp.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions() {
-                WriteIndented = true,
-                PropertyNameCaseInsensitive = true
-            };
-            var arrUsers = JsonSerializer.Deserialize<User[]>(resp, options);
+            var arrUsers = await ahttp.GetAll(url);
             users.AddRange(arrUsers);
             Console.WriteLine($"Test User List:");
             Console.WriteLine($" - Rows: {users.Count}");
         }
 
         public async Task TestUserByPK() {
-            urlfmt.Values = "1";
+            var userId = users.FirstOrDefault().Id.ToString();
+            urlfmt.Values = userId;
             var url = urlfmt.Url;
-            var httpResp = await http.GetAsync(url);
-            var resp = await httpResp.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions() {
-                WriteIndented = true,
-                PropertyNameCaseInsensitive = true
-            };
-            var user = JsonSerializer.Deserialize<User>(resp, options);
+            var user = await ahttp.GetByPk(url);
             Console.WriteLine($"Test User by primary key:");
             Console.WriteLine($" - Primary key: {urlfmt.Values} {(user != null ? "found" : "not found")}");
         }
@@ -52,35 +43,25 @@ namespace Prs_Test_Server.Controllers {
                 PhoneNumber = "Test Phone", Email = "Test Email",
                 IsReviewer = true, IsAdmin = false
             };
-
-            var json = JsonSerializer.Serialize(user);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var httpResp = await http.PostAsync(url, httpContent);
-            var resp = await httpResp.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions() {
-                WriteIndented = true,
-                PropertyNameCaseInsensitive = true
-            };
-            var newuser = JsonSerializer.Deserialize<User>(resp, options);
+            var newuser = await ahttp.Create(url, user);
             Console.WriteLine($"Test User Insert:");
             Console.WriteLine($" - Username: {newuser.Username}");
         }
         public async Task TestUserUpdate() {
-            urlfmt.Values = "1";
+            var userId = users.FirstOrDefault().Id.ToString();
+            urlfmt.Values = userId;
             var url = urlfmt.Url;
-            var httpResp = await http.GetAsync(url);
-            var resp = await httpResp.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions() {
-                WriteIndented = true,
-                PropertyNameCaseInsensitive = true
-            };
-            var user = JsonSerializer.Deserialize<User>(resp, options);
-            user.Password = "***PASSWORD**";
-            var json = JsonSerializer.Serialize(user);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            httpResp = await http.PutAsync(url, httpContent);
+            await ahttp.Change(url);
             Console.WriteLine($"Test User Update:");
-            Console.WriteLine($" - StatusCode: {httpResp.StatusCode}");
+            Console.WriteLine($" - StatusCode: {ahttp.HttpResponse.StatusCode}");
+        }
+        public async Task TestUserDelete() {
+            var userId = users.FirstOrDefault().Id.ToString();
+            urlfmt.Values = userId;
+            var url = urlfmt.Url;
+            await ahttp.Remove(url);
+            Console.WriteLine($"Test User Delete:");
+            Console.WriteLine($" - StatusCode: {ahttp.HttpResponse.StatusCode}");
         }
 
         public UserTestController() {
@@ -90,7 +71,6 @@ namespace Prs_Test_Server.Controllers {
                 Port = 5000,
                 Controller = "api/users"
             };
-            http = new HttpClient();
         }
     }
 }

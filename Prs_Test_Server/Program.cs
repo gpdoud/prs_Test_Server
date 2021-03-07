@@ -18,10 +18,11 @@ namespace Prs_Test_Server {
             var cmd = _args["cmd"];
             switch(cmd) {
                 case "test-all":
-                    //await uctrl.TestUserInsert();
-                    //await uctrl.TestUserList();
-                    //await uctrl.TestUserByPK();
+                    await uctrl.TestUserInsert();
+                    await uctrl.TestUserList();
+                    await uctrl.TestUserByPK();
                     await uctrl.TestUserUpdate();
+                    await uctrl.TestUserDelete();
                     break;
                 default:
                     NotImplemented();
