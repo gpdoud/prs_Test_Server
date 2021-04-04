@@ -15,7 +15,6 @@ namespace Prs_Test_Server.Controllers {
         private UrlFormatter urlfmt = null;
         private HttpClient http = new HttpClient();
         private List<User> users = new List<User>();
-        //private Serializer<User> serUser = new Serializer<User>();
         AsyncHttpClient<User> ahttp = new AsyncHttpClient<User>();
 
         public async Task TestUserList() {

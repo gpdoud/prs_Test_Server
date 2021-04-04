@@ -12,12 +12,17 @@ namespace Prs_Test_Server {
 
         IDictionary<string, string> _args = null;
         UserTestController uctrl = new UserTestController();
+        VendorTestController vctrl = new VendorTestController();
 
         private async Task Run(string[] args) {
             _args = Args.Parse(args);
             var cmd = _args["cmd"];
             switch(cmd) {
-                case "test-all":
+                case "test-vendor":
+                    await vctrl.TestInsert();
+                    await vctrl.TestList();
+                    break;
+                case "test-user":
                     await uctrl.TestUserInsert();
                     await uctrl.TestUserList();
                     await uctrl.TestUserByPK();
@@ -35,7 +40,7 @@ namespace Prs_Test_Server {
         }
 
         public static async Task Main(string[] args) {
-            await (new Program()).Run(args);
+            await new Program().Run(args);
         }
     }
 }
